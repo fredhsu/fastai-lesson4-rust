@@ -1,4 +1,4 @@
-use polars::{prelude::*, lazy::dsl::concat_list};
+use polars::{prelude::*};
 use std::path::{PathBuf, Path};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -16,14 +16,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .finish()?;
 
     // Display the DataFrame
-    println!("{:?}", df);
-    let input_col = df.select(
-        concat_str([df["context"].str_value(), df["target"].str_value()])
-        );
-
-
-
-    df.with_columns(Series::new("input","TEXT1: " + df["context"].clone()))?;
+    //println!("{:?}", df);
+    println!("shape: {:?}", df.shape());
+    let (m,n) = df.shape();
+    let text1 = Series::new("input", &["TEXT1: "]).extend_constant(AnyValue::Utf8("TEXT1: "), m-1)?;
+    println!("text1 length:{}", text1.len());
+    let target = df.column("target").unwrap().clone();
+    println!("target length:{}", target.len());
+    let chunk = polars::functions::concat_str([text1, target].as_ref(), " ")?;
+    let df = df.with_column(chunk.clone())?;
+    
+    println!("{:?}", chunk);
+    //println!("{df}");
 
     println!("{:?}", df["input"]);
 
