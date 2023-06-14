@@ -35,7 +35,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         polars::functions::concat_str([text1, context, text2, target, anch, anchor].as_ref(), " ")?;
     let df = df.with_column(chunk.clone())?;
 
-    println!("{:?}", df["input"]);
+    println!("{:?}", df["input"].get(0)?);
+
+    // Getting stuck with tokenizer. Can I use an existing tokenizer that is supported by
+    // a library? How do you build a tokenizer based on an existing model like the transformers
+    // library in python/hugging face does?
 
     Ok(())
 }
